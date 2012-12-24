@@ -21,6 +21,9 @@
 ; timer cont
 .equ T10USEC	= 248	; Pre Scale=1/8, 100KHz
 .equ PRE_SCALE	= 0x2	; 1/8
+.equ PRT_SND	= portb	; port for sound pwm
+.equ DDR_SND	= ddrb	; ddr for PRT_SND
+.equ PIN_SND	= 0		; pin for above
 
 ;=============================================================
 ; variables
@@ -34,12 +37,10 @@
 .def t10ms		= r6	; count for 10ms
 .def t100ms		= r7	; count for 100ms
 .def t1s		= r8	; count for 1s
-.def sctopl		= r9	; sound interval count low byte
-.def sctoph		= r10	; sound interval count high byte
+.def sctop		= r9	; sound interval count
 .def mcnt		= r11	; t100ms counter
 .def mtop		= r12	; tcnt top value
-.def scntl		= r13	; scntl compare value
-.def scnth		= r14	; scnth compare value
+.def scnt		= r13	; scntl compare value
 
 .def acc		= r16	; accumulator
 .def acc2		= r17	; accumulator2
@@ -56,7 +57,7 @@
 .endmacro
 
 ; flip port output
-.macro FLIP_PORTOUT		; FLIP_PORT portx, port_bit
+.macro FlipOut			; FlipOut portx, port_bit
 	in		acc, @0
 	ldi		acc2, @1	; bit mask
 	eor		acc, acc2
@@ -92,17 +93,8 @@ main:
 	ldi		acc, 10			; put constant 10 in register
 	mov		ten, acc
 
-	; initialize port b
-	ldi	 	acc, 0xFF		; PORTB all bits are output
-	out	 	DDRB, acc		; set direction
-	ldi	 	acc, 0x00		; set output data
-	out	 	PORTB, acc		; set all to low
-
-	; initialize port d
-	ldi	 	acc, 0xFF		; PORTD all bits are output
-	out	 	DDRD, acc		; set direction
-	ldi	 	acc, 0x00		; set output data
-	out	 	PORTD, acc		; set all to low
+	; initialize port
+	sbi		DDR_SND, PIN_SND
 
 	; Timer/Counter 0 initialize
 	; tccr0a=0, standard mode
@@ -121,8 +113,7 @@ main:
 	clr		t10ms			; init counter for 10ms
 
 	; initialize sound interval counter
-	clr		sctopl			; sound interval count low
-	clr		sctoph			; sound interval count high
+	clr		sctop			; sound interval count
 
 	; initialize melody counter
 	clr		mcnt			; initialize melody counter
@@ -131,14 +122,12 @@ main:
 	ldi		zl, low(SNDDATA<<1)		; init zl
 	ldi		zh, high(SNDDATA<<1)	; init zh
 
-	lpm		mtop, z+			; initialize tcnt compare value
-	lpm		sctopl, z+		; count untill scntl becomes this value
-	clr		sctoph			; and scnth becomes this value. but not used this time
+	lpm		mtop, z+		; initialize tcnt compare value
+	lpm		sctop, z+		; count untill scnt becomes this value
 
 	sei						; allow all interruption
 
 main_loop:
-	out	 	PORTB, sctopl	; output current sctopl value
 	rjmp	main_loop		; loop
 
 ;=============================================================
@@ -201,32 +190,30 @@ set_snd:
 
 set_snd_asgn:
 	lpm		mtop, z+		; initialize tcnt compare value
-	lpm		sctopl, z+		; count untill scntl becomes this value
-	clr		sctoph			; and scnth becomes this value. but not used this time
-	clr		scntl
-	clr		scnth
+	lpm		sctop, z+		; count untill scntl becomes this value
+	clr		scnt
 set_snd_exit:
 	ret
 
 ;=============================================================
 ; sound frequency pwm
+; supporsed to be called every 10us
 ;=============================================================
 snd_pwm:
-	clc
-	adc		scntl, one
-	brcc	snd_pwm1
-	clc
-	adc		scnth, one
-	brcc	snd_pwm1
-	clc
-snd_pwm1:
-	cp		sctopl, scntl
-	brne	snd_pwm_ext
-	cp		sctoph, scnth
-	brne	snd_pwm_ext
-	FLIP_PORTOUT portd, 0b0000_0001
-	clr		scntl
-	clr		scnth
+	ldi		acc, 0
+	cp		sctop, acc
+	breq	snd_pwm_clr
+	rjmp	snd_pwm_out
+snd_pwm_mute:
+	cbi		PRT_SND, PIN_SND
+	ret
+snd_pwm_out:
+	inc		scnt
+	cp		scnt, sctop
+	brlo	snd_pwm_ext
+	FlipOut	PRT_SND, 1<<PIN_SND
+snd_pwm_clr:
+	clr		scnt
 snd_pwm_ext:
 	ret
 
