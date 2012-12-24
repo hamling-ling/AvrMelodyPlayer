@@ -91,7 +91,7 @@
 	.else 
 		.error "OutReg: Invalid I/O register address" 
 	.endif 
-.endmacro 
+.endmacro
 
 ;=============================================================
 ; program
@@ -101,8 +101,14 @@
 ;=============================================================
 ; vectors
 ;=============================================================
-.org 	0x0000		jmp	main	 	; reset handler
-.org	0x0020		jmp intr_time0	; timer0 overflow handler
+#ifdef ATMEGA168
+.org 	0x0000		rjmp main	 	; reset handler
+.org	0x0020		rjmp intr_time0	; timer0 overflow handler
+#endif
+#ifdef ATTINY45
+.org 	0x0000		rjmp main	 	; reset handler
+.org	0x0005		rjmp intr_time0	; timer0 overflow handler
+#endif
 
 ;=============================================================
 ; main
@@ -181,11 +187,11 @@ intr_time0:
 	TIME_COUNT t100us,	intr_time0_sndpwm	; count wrap around for 100us
 	TIME_COUNT t1ms,	intr_time0_sndpwm	; count wrap around for 1ms
 	TIME_COUNT t10ms,	intr_time0_sndpwm	; count wrap around for 10ms
-	TIME_COUNT t100ms,	initr_time0_setsnd	; count wrap around for 100ms
-	TIME_COUNT t1s,		initr_time0_setsnd	; count wrap around for 1s
+	TIME_COUNT t100ms,	intr_time0_setsnd	; count wrap around for 100ms
+	TIME_COUNT t1s,		intr_time0_setsnd	; count wrap around for 1s
 
-initr_time0_setsnd:
-	rcall	set_snd			; called every 100ms
+intr_time0_setsnd:
+	rcall	set_freq			; called every 100ms
 
 intr_time0_sndpwm:
 	rcall	snd_pwm
@@ -199,28 +205,31 @@ intr_time0_end:
 
 ;=============================================================
 ; set sound frequency
+; supporsed to be called every 100ms
 ;=============================================================
-set_snd:
+set_freq:
+	mov		acc, mcnt
 	inc		mcnt
-	cp		mtop, mcnt
-	brne	set_snd_exit	; if mtop!=mcnt, do nothing
-	clr		mcnt
+	cp		acc, mtop
+	brlt	set_freq_ext	; if mcnt<mtop, do nothing
 
 	; check more data left
 	cpi		zl, low(SNDDATA_END<<1)
-	brne	set_snd_asgn
+	brne	set_freq_asgn
 	cpi		zh, high(SNDDATA_END<<1)
-	brne	set_snd_asgn
+	brne	set_freq_asgn
 
 	; if data is end, reset pointer with head position
 	ldi		zl, low(SNDDATA<<1)
 	ldi		zh, high(SNDDATA<<1)
+	clr		mcnt
 
-set_snd_asgn:
+set_freq_asgn:
 	lpm		mtop, z+		; initialize tcnt compare value
-	lpm		sctop, z+		; count untill scntl becomes this value
+	lpm		sctop, z+		; count untill scnt becomes this value
 	clr		scnt
-set_snd_exit:
+	mov		mcnt, one
+set_freq_ext:
 	ret
 
 ;=============================================================
