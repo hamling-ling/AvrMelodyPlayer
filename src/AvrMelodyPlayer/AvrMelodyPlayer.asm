@@ -8,7 +8,8 @@
 ; TINKLE	: Twinkle twinkle litttle star
 ; XMAS		: We wish you are merry christmas
 ;#define		TWINKLE	; uncommend if you want to change melody
-#define		XMAS		; commend if you above is commented out
+;#define		XMAS		; commend if you above is commented out
+#define		JAWS		; commend if you above is commented out
 
 ; header files
 .include "m168def.inc"	;
@@ -361,6 +362,116 @@ SNDDATA:
 	.db NOTE_8, TONE_2D
 	.db NOTE_8, TONE_1B
 	.db NOTE_4, TONE_2C
+SNDDATA_END:
+#endif
+
+#ifdef JAWS
+SNDDATA:
+	.db NOTE_4, TONE_1E		;ta--da
+	.db NOTE_16, TONE_1F
+	.db NOTE_16, TONE_NONE
+	.db NOTE_8, TONE_NONE
+	.db NOTE_4, TONE_NONE
+
+	.db NOTE_4, TONE_1E		;ta--da,ta--da
+	.db NOTE_16, TONE_1F
+	.db NOTE_16, TONE_NONE
+	.db NOTE_8, TONE_NONE
+	.db NOTE_4, TONE_1E
+	.db NOTE_16, TONE_1F
+	.db NOTE_16, TONE_NONE
+	.db NOTE_8, TONE_NONE
+
+	.db NOTE_8, TONE_1E		;ta-da,ta-da
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_16, TONE_NONE
+	.db NOTE_8, TONE_1E
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_16, TONE_NONE
+
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+
+	.db NOTE_32, TONE_2E
+	.db NOTE_32, TONE_2G
+	.db NOTE_WL, TONE_2AS
+
+	.db NOTE_32, TONE_2E
+	.db NOTE_32, TONE_2G
+	.db NOTE_WL, TONE_3C
+
+	.db NOTE_8, TONE_3E
+	.db NOTE_8, TONE_2B
+	.db NOTE_8, TONE_3FS
+	.db NOTE_8, TONE_2B
+	.db NOTE_16, TONE_3GS
+	.db NOTE_16, TONE_3A
+	.db NOTE_16, TONE_3B
+	.db NOTE_16, TONE_3GS
+	.db NOTE_8, TONE_3FS
+	.db NOTE_8, TONE_2B
+
+	.db NOTE_8, TONE_3E
+	.db NOTE_8, TONE_2B
+	.db NOTE_16, TONE_3FS
+	.db NOTE_16, TONE_2A
+	.db NOTE_16, TONE_3GS
+	.db NOTE_16, TONE_2FS
+	.db NOTE_8, TONE_3CS
+	.db NOTE_4, TONE_2B
+	.db NOTE_8, TONE_2B
+
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_1F
+	.db NOTE_32, TONE_NONE
+
+	.db NOTE_32, TONE_2E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2F
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2E
+	.db NOTE_32, TONE_NONE
+	.db NOTE_32, TONE_2F
+	.db NOTE_32, TONE_NONE
+
+	.db NOTE_4, TONE_NONE
 SNDDATA_END:
 #endif
 

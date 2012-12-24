@@ -1,10 +1,14 @@
-.equ NOTE_16	= 2					; 16th note
-.equ NOTE_8		= (NOTE_16 << 1)	; eighth note
-.equ NOTE_4		= (NOTE_16 << 2)	; quater note
-.equ NOTE_2		= (NOTE_16 << 3)	; half note
-.equ NOTE_WL	= (NOTE_16 << 4)	; whole note
-.equ NOTE_DWL	= (NOTE_16 << 5)	; double whole note
+.equ NOTE_32	= 1					; 32th note
+.equ NOTE_24	= (NOTE_32 << 1)*1.5; 16th note
+.equ NOTE_16	= (NOTE_32 << 1)	; 16th note
+.equ NOTE_12	= (NOTE_32 << 2)*1.5; eighth note
+.equ NOTE_8		= (NOTE_32 << 2)	; eighth note
+.equ NOTE_4		= (NOTE_32 << 3)	; quater note
+.equ NOTE_2		= (NOTE_32 << 4)	; half note
+.equ NOTE_WL	= (NOTE_32 << 5)	; whole note
+.equ NOTE_DWL	= (NOTE_32 << 6)	; double whole note
 
+.equ TONE_NONE	= 0
 .equ TONE_0G	= 255	; G
 .equ TONE_0GS	= 241	; G#
 .equ TONE_0A	= 227	; A
