@@ -4,6 +4,11 @@
 ; started on	: 11/07/2012
 ; clock			: clk=8MHz
 ;=============================================================
+
+; chip select
+;#define			ATMEGA168	; Atmega168
+#define			ATTINY45	; AtTiny45
+
 ; melody data select
 ; TINKLE	: Twinkle twinkle litttle star
 ; XMAS		: We wish you are merry christmas
@@ -12,7 +17,13 @@
 #define		JAWS		; commend if you above is commented out
 
 ; header files
-.include "m168def.inc"	;
+#ifdef ATMEGA168
+.include "m168def.inc"
+#endif
+#ifdef ATTINY45
+.include "tn45def.inc"
+#endif
+
 .include "musicnote.inc"	; definition of music stuff
 
 ;=============================================================
@@ -24,6 +35,13 @@
 .equ PRT_SND	= portb	; port for sound pwm
 .equ DDR_SND	= ddrb	; ddr for PRT_SND
 .equ PIN_SND	= 0		; pin for above
+
+#ifdef ATMEGA168
+.equ TIMERMASK	= TIMSK0
+#endif
+#ifdef ATTINY45
+.equ TIMERMASK	= TIMSK
+#endif
 
 ;=============================================================
 ; variables
@@ -64,6 +82,17 @@
 	out		@0, acc		; output
 .endmacro
 
+; usage: OutReg addr, reg 
+.macro OutReg 
+	.if @0 < 0x40 
+		out @0, @1 
+	.elif ((@0 >= 0x60) && (@0 < SRAM_START)) 
+		sts @0,@1 
+	.else 
+		.error "OutReg: Invalid I/O register address" 
+	.endif 
+.endmacro 
+
 ;=============================================================
 ; program
 ;=============================================================
@@ -98,9 +127,9 @@ main:
 
 	; Timer/Counter 0 initialize
 	; tccr0a=0, standard mode
-	lds		acc, timsk0
+	ldi		acc, 0
 	sbr	 	acc,(1<<TOIE0)	; set overflow interruption bit
-	sts	 	TIMSK0, acc		; allow timer0 overflow interruption
+	OutReg	TIMERMASK, acc	; allow timer0 overflow interruption
 	ldi	 	acc, T10USEC	; 10us count
 	out	 	TCNT0, acc		; set timer0 counter
 	ldi	 	acc, PRE_SCALE	; set prescale
@@ -142,7 +171,6 @@ intr_time0:
 	; reset timer
 	clr		acc				; stop counter
 	out		tccr0b, acc
-
 	ldi		acc, T10USEC	; 10usec count
 	out		TCNT0, acc		; set timer0
 
@@ -163,7 +191,7 @@ intr_time0_sndpwm:
 	rcall	snd_pwm
 
 intr_time0_end:
-	pop		acc2			; restore acc2			
+	pop		acc2			; restore acc2
 	pop		acc				; restore acc
 	pop		sreg_save
 	out		SREG, sreg_save	; restore sreg
